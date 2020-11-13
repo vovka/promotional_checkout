@@ -1,21 +1,37 @@
 module PromotionalCheckout
   class Checkout
+    attr_reader :line_items, :discounts
+
     def initialize(rules, products = ProductStub)
-      @item_promotion_rules = rules.select { |r| r.type == "item" }
-      @basket_promotion_rules = rules.select { |r| r.type == "basket" }
-      @items = []
+      @rules = rules
+      @line_items = []
       @products = products
+      @discounts = []
     end
 
     def scan(product_code)
       product = @products.find_by_code(product_code)
-      checkout_item = Item.new(product)
-      @items << @item_promotion_rules.reduce(checkout_item) { |item, promotion_rule| promotion_rule.apply_to(checkout_item) }
+      return if product.nil?
+      line_item = @line_items.find { |li| li.product == product }
+      if line_item.nil?
+        line_item = LineItem.new(product)
+        @line_items << line_item
+      end
+      line_item.quantity += 1
+      product
     end
 
     def total
-      subtotal = @items.sum(&:total)
-      @basket_promotion_rules.reduce(subtotal) { |subt, promotion_rule| promotion_rule.apply_to(subt) }
+      @rules.each { |rule| rule.apply_to(self) }
+      subtotal - total_discount
+    end
+
+    def subtotal
+      @line_items.sum(&:total)
+    end
+
+    def total_discount
+      @discounts.sum(&:amount)
     end
   end
 end

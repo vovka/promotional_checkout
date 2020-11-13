@@ -11,7 +11,10 @@ class MainFlowTest < Minitest::Test
     PromotionalCheckout::ProductStub.create!(code: "C", price: 50)
     PromotionalCheckout::ProductStub.create!(code: "D", price: 15)
     @rules = [
-      PromotionalCheckout::Rule.new()
+      PromotionalCheckout::Rule.new("A", min_quantity: 3, amount_off: 15),
+      PromotionalCheckout::Rule.new("B", min_quantity: 2, amount_off: 5),
+      PromotionalCheckout::Rule.new(min_subtotal: 150, amount_off: 20),
+      # PromotionalCheckout::Rule.new(min_subtotal: 100, percents_off: 20),
     ]
   end
 
@@ -28,7 +31,7 @@ class MainFlowTest < Minitest::Test
   end
 
   def test_c_b_a_a_d_a_b
-    @codes = %w[B A B A A]
+    @codes = %w[C B A A D A B]
 
     assert_equal(155, price)
   end
@@ -39,11 +42,19 @@ class MainFlowTest < Minitest::Test
     assert_equal(140, price)
   end
 
+  def _test_c_c_c
+    @codes = %w[C C]
+
+    assert_equal(80, price)
+  end
+
   private
 
   def price
     co = Checkout.new(rules)
     @codes.each { |code| co.scan(code) }
+    # pp co
+    # puts $/
     price = co.total
   end
 end
