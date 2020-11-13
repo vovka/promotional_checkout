@@ -4,6 +4,7 @@ require "promotional_checkout/checkout"
 require "promotional_checkout/rule"
 require "promotional_checkout/discount"
 require "promotional_checkout/product_stub"
+require "money"
 
 module PromotionalCheckout
   class Error < StandardError; end

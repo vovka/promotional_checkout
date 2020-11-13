@@ -1,6 +1,6 @@
 module PromotionalCheckout
   class Rule
-    def initialize(item = nil, min_quantity: nil, min_subtotal: nil, amount_off: nil, percents_off: nil)
+    def initialize(item = nil, min_quantity: nil, min_subtotal: nil, amount_off: nil, percents_off: nil, priority: 0)
       @item = item
       @min_quantity = min_quantity
       @min_subtotal = min_subtotal
@@ -33,12 +33,12 @@ module PromotionalCheckout
 
     def appliable?(object)
       return object.quantity >= @min_quantity unless @min_quantity.nil?
-      return object.subtotal >= @min_subtotal unless @min_subtotal.nil?
+      return object.subtotal.amount >= @min_subtotal unless @min_subtotal.nil?
     end
 
     def evaluate_amount(object)
       return @amount_off unless @amount_off.nil?
-      object.subtotal / 100 * @percents_off
+      object.subtotal.amount / 100 * @percents_off
     end
   end
 end
