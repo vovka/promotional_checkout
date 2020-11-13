@@ -4,7 +4,6 @@ module PromotionalCheckout
 
     def initialize(rule, amount)
       @rule = rule
-      pp amount
       @amount = Money.from_amount(amount)
     end
   end
